@@ -17,6 +17,7 @@ pipeline {
                 sh '''
                     node --version
                     npm --version
+                    rm -rf node_modules
                 '''
             }
         }
