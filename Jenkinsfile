@@ -34,8 +34,11 @@ pipeline {
                         # Optional: Install dependencies and restart app on remote
                         ssh -o StrictHostKeyChecking=no ${USER}@${IP_ADDRESS} '
                             cd ~/jenkins-node
-                            npm ci
                             pm2 restart jenkins_node || pm2 start index.js --name jenkins_node
+                            pm2 restart app || pm2 start app.js --name app
+                            pm2 startup
+                            sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u ${USER} --hp /home/${USER}
+                            pm2 save
                         '
                     """
                 }
