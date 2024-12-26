@@ -1,12 +1,12 @@
 pipeline {
-    environment{
+    environment {
         USER = credentials('username')
         IP_ADDRESS = credentials('ip_address')
         SSH_CREDENTIALS = credentials('ssh_credentials')
     }
-    agent{
-        docker{
-            image 'node:18-alpine'
+    agent {
+        docker {
+            image 'node:latest'
             reuseNode true
         }
     }
