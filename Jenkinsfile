@@ -25,7 +25,18 @@ pipeline {
             steps {
                 sshagent(['ssh_credentials']) { 
                     sh """
-                        ssh -o StrictHostKeyChecking=no ${USER}@${IP_ADDRESS} "ls"
+                        # Create directory on remote server
+                        ssh -o StrictHostKeyChecking=no ${USER}@${IP_ADDRESS} 'mkdir -p ~/jenkins-node'
+                        
+                        # Copy all files from workspace to remote server
+                        scp -o StrictHostKeyChecking=no -r ./* ${USER}@${IP_ADDRESS}:~/jenkins-node/
+                        
+                        # Optional: Install dependencies and restart app on remote
+                        ssh -o StrictHostKeyChecking=no ${USER}@${IP_ADDRESS} '
+                            cd ~/jenkins-node
+                            npm ci
+                            pm2 restart jenkins_node || pm2 start index.js --name jenkins_node
+                        '
                     """
                 }
             }
