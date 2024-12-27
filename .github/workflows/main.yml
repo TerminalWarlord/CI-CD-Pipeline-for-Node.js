@@ -21,9 +21,18 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install Dependency
-        run: npm ci
+        run: |
+          npm ci
+          ls -la
 
-      - name: Deploy using ssh
+      - name: Copy files to VPS
+        run: |
+          rsync -avz --exclude='.git' --exclude='node_modules' ./ ${{ secrets.USERNAME }}@${{ secrets.HOST }}:~/github_ci_cd_app
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run the script on VPS
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
@@ -31,9 +40,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            cd ~/
-            mkdir -p github_ci_cd_app
-            rsync -avz --exclude='.git' --exclude='node_modules' ./ ~/github_ci_cd_app
             cd ~/github_ci_cd_app
             npm ci
             pm2 restart github_actions_app || pm2 start index.js --name github_actions_app
