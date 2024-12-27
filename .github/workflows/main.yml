@@ -46,8 +46,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
+            whoami
             cd ~/github_ci_cd_app
-            npm ci
+            npm install
             pm2 restart github_actions_app || pm2 start index.js --name github_actions_app
             pm2 startup systemd -u $USER --hp /home/$USER
             pm2 save
