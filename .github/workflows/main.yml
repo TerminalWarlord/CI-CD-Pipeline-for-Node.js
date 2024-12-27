@@ -30,4 +30,12 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
-          script: ls -la
+          script: |
+            cd ~/
+            mkdir -p github_ci_cd_app
+            rsync -avz --exclude='.git' --exclude='node_modules' ./ ~/github_ci_cd_app
+            cd ~/github_ci_cd_app
+            npm ci
+            pm2 restart github_actions_app || pm2 start index.js --name github_actions_app
+            pm2 startup systemd -u $USER --hp /home/$USER
+            pm2 save
